@@ -1,5 +1,26 @@
+import os
+import inspect
+import shutil
 import tensorflow as tf
 import numpy as np
+
+# Calculate LOG_DIR according to current file
+CUR_FILE = inspect.getfile(inspect.currentframe())
+LOG_DIR = os.path.join(
+os.path.dirname(os.path.abspath(CUR_FILE)), 'logs',
+os.path.splitext(os.path.basename(CUR_FILE))[0])
+
+# Check is the LOG_DIR empty. If not ask for clean.
+def clean_logs(logdir):
+    if logdir == None or len(logdir) < 4:
+        return
+    if os.path.exists(logdir) and len(os.listdir(logdir)) > 0:
+        answer = input('Log Folder: ' + logdir + ' is not empty. Clean it? [y/N]')
+        if answer in ['Y', 'y']:
+            shutil.rmtree(logdir)
+clean_logs(LOG_DIR)
+
+print('TensorFlow Version: ' + tf.__version__)
 
 graph = tf.Graph()
 
@@ -33,7 +54,7 @@ with graph.as_default():
         merged_summaries = tf.summary.merge_all()
 
 sess = tf.Session(graph=graph)
-writer = tf.summary.FileWriter('./logs', graph)
+writer = tf.summary.FileWriter(LOG_DIR, graph)
 sess.run(init)
 
 def run_graph(input_tensor):
@@ -48,3 +69,14 @@ for item in feeds:
 writer.flush()
 writer.close()
 sess.close()
+
+# Automatically show TensorBoard if needed.
+def show_tensorboard(auto_show=False):
+    cmd = 'tensorboard --logdir=' + LOG_DIR
+    if auto_show:
+        answer = input('Show tensorboard? [Y/n]')
+        if not answer in ['N', 'n']:
+            os.system(cmd)
+    else:
+        print("\nRun this command to see logs:\n" + cmd)
+show_tensorboard(True)
