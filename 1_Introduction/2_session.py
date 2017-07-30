@@ -1,25 +1,27 @@
-import os
-import inspect
-import shutil
 import tensorflow as tf
-import numpy as np
-
-# Calculate LOG_DIR according to current file
-CUR_FILE = inspect.getfile(inspect.currentframe())
-LOG_DIR = os.path.join(
-os.path.dirname(os.path.abspath(CUR_FILE)), 'logs',
-os.path.splitext(os.path.basename(CUR_FILE))[0])
-
-# Check is the LOG_DIR empty. If not ask for clean.
-def clean_logs(logdir):
-    if logdir == None or len(logdir) < 4:
-        return
-    if os.path.exists(logdir) and len(os.listdir(logdir)) > 0:
-        answer = input('Log Folder: ' + logdir + ' is not empty. Clean it? [y/N]')
-        if answer in ['Y', 'y']:
-            shutil.rmtree(logdir)
-clean_logs(LOG_DIR)
 
 print('TensorFlow Version: ' + tf.__version__)
 
-# Construct the TensorFlow Compute graph
+# Define a default Graph
+a = tf.constant(3)
+b = tf.constant(5)
+c = tf.add(a, b)
+
+# Define a customized Graph
+graph = tf.Graph()
+with graph.as_default():
+    aa = tf.constant(33)
+    bb = tf.constant(55)
+    cc = tf.add(aa, bb)
+
+# With default session, will use default graph
+sess = tf.Session()
+print('No param in tf.Session(), use default graph' + sess.run(c))
+
+# After use the session, the session must be closed.
+sess.close()
+
+# To use non-default graph, need to specify graph parameter
+with tf.Session(graph=graph) as sess2:
+    # In this case, not necessary to close the session explicity
+    print(sess2.run(cc))
