@@ -33,8 +33,8 @@ data_y = data_x * 0.3 + 0.5 + data_noise
 
 # Linear model
 # y = w * x + b
-w = tf.Variable(tf.random_uniform([1], 0.0, 1.0), name="weight")
-b = tf.Variable(tf.zeros([1]), name="bias")
+w = tf.Variable(tf.random_uniform([], 0.0, 1.0), name="weight")
+b = tf.Variable(tf.zeros([]), name="bias")
 y = w * data_x + b
 
 # Training graph
@@ -48,9 +48,11 @@ train = optimizer.minimize(loss)
 
 # Define summary
 with tf.name_scope('summaries'):
+    tf.summary.scalar('weight', w)
+    tf.summary.scalar('bias', b)
+    tf.summary.scalar('loss', loss)
     tf.summary.histogram('weight', w)
     tf.summary.histogram('bias', b)
-    tf.summary.scalar('loss', loss)
 
 # Merge all summaries for writer later
 merged_summary = tf.summary.merge_all()
